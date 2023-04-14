@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Basemaps with different projections | Sample | ArcGIS Maps SDK for
+      JavaScript 4.26
+    </title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.26/"></script>
+
+   <style>
+      html,
+      body,
+      #container {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+         #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+      #header {
+        height: 50px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        line-height: 50px;
+      }
+      #mapDiv {
+        height: calc(100% - 50px);
+      }
+      #basemapDiv {
+        height: 300px;
+        padding: 10px;
+      }
+      #srDiv {
+        height: 40px;
+        padding: 10px;
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/portal/Portal",
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/BasemapGallery/support/PortalBasemapsSource",
+        "esri/widgets/Expand",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/LayerList",
+        "esri/widgets/Search",
+      ], function (
+        Map,
+        MapView,
+        Portal,
+        BasemapGallery,
+        PortalBasemapsSource,
+        Expand,
+        FeatureLayer,
+        Legend,
+        ScaleBar,
+        LayerList,
+        Search
+      ) {
+        
+         
+      
+        
+        
+        const portal = new Portal();
+        
+         var flayer = new FeatureLayer({
+          url: "https://www.geosceneonline.cn/server/rest/services/Hosted/content_1680766982102/FeatureServer"
+        });
+
+        // source for basemaps from a portal group
+        // containing basemaps with different projections
+        const source = new PortalBasemapsSource({
+          portal,
+          query: {
+            id: "bdb9d65e0b5c480c8dcc6916e7f4e099"
+          }
+        });
+
+        const map = new Map({
+          basemap: {
+            portalItem: {
+              id: "8d91bd39e873417ea21673e0fee87604", // nova basemap
+            }
+          }
+        });
+        map.layers.add(flayer);
+        
+      
+       
+
+        
+
+        // center the view over 48 states
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [105, 35],
+          zoom: 3,
+          constraints: {
+            snapToZoom: false
+          }
+        });
+        view.ui.add("srDiv", "top-right");
+
+        const bgExpand = new Expand({
+          view,
+          content: new BasemapGallery({ source, view }),
+          expandIconClass: "esri-icon-basemap"
+        });
+        view.ui.add(bgExpand, "top-right");
+
+        view.watch("spatialReference", () => {
+          document.getElementById(
+            "srDiv"
+          ).innerHTML = `view.spatialReference.wkid = <b>${view.spatialReference.wkid}</b>`;
+        });
+        
+          var legend = new Legend({
+          view: view,
+          layerInfos: [
+            {
+              layer: flayer,
+              title: "统计人数变化比例图例"
+            }
+          ]
+        });
+        view.ui.add(legend, "bottom-right");
+
+        var scaleBar = new ScaleBar({
+          view: view,
+          style: "ruler",
+          unit: "metric"
+         
+        });
+        view.ui.add(scaleBar, {
+          position: "bottom-left"
+        });
+        
+         // Create a new LayerList widget
+  const layerList = new LayerList({
+    view: view,
+    container: "layerListDiv" // Add layerList to the layerListDiv
+  });
+  view.ui.add(layerList, "top-right"); // Add layerList widget to the view
+
+  // Create a new Search widget
+  const search = new Search({
+    view: view,
+    container: "searchDiv" // Add search to the searchDiv
+  });
+  view.ui.add(search, "top-left"); // Add search widget to the view
+        
+        
+        
+      });
+      
+     
+      
+     
+
+      
+    </script>
+  </head>
+
+  <body>
+    <div id="header">中国人口聚集</div>
+    <div id="viewDiv"></div>
+    
+    <div id="srDiv" class="esri-widget"></div>
+      <div id="legendDiv" class="esri-widget"></div>
+     <div id="scaleBarDiv" class="esri-widget"></div>
+     <div id="layerListDiv" class="esri-widget"></div>
+<div id="searchDiv" class="esri-widget"></div>
+    
+  </body>
+</html>
